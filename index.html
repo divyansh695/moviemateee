@@ -1,0 +1,1023 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MovieMate — Movie Recommendation System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050505;--fg:#f1efea;--mute:#8c8a85;--line:#252525;--gold:#c9b98a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Archivo,Arial,sans-serif;background:var(--bg);color:var(--fg)}
+button,input{font:inherit}
+button:focus-visible,input:focus-visible,.card:focus-visible,.trend:focus-visible,.slot:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+header{position:sticky;top:0;z-index:20;background:#050505ee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav{max-width:1250px;margin:auto;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:20px;font-size:13px;color:var(--mute)}
+.logo{font-size:22px;font-weight:300;font-stretch:125%;color:var(--fg);letter-spacing:.01em}
+.logo span{font-weight:800}
+.keybar{border-bottom:1px solid var(--line);padding:10px 22px}
+.keyin{max-width:1250px;margin:auto;display:flex;gap:10px}
+.keyin input{flex:1;min-width:0;background:transparent;color:var(--fg);border:0;border-bottom:1px solid var(--line);padding:9px 2px;font-size:14px;outline:0}
+.keyin input:focus{border-color:var(--fg)}
+.btn{border:1px solid var(--fg);background:var(--fg);color:#000;font-weight:600;border-radius:2px;padding:10px 20px;cursor:pointer;transition:.15s}
+.btn:hover{background:transparent;color:var(--fg)}
+.btn.alt{background:transparent;color:var(--fg);border-color:#444}
+.btn.alt:hover{border-color:var(--fg)}
+.btn:disabled{opacity:.5;cursor:wait}
+.hero{padding-top:44px;border-bottom:1px solid var(--line);overflow:hidden}
+.heroTop{max-width:1250px;margin:auto;padding:0 22px 32px;display:flex;align-items:end;justify-content:space-between;gap:30px;flex-wrap:wrap}
+h1{font-size:clamp(30px,5vw,58px);line-height:1;font-weight:300;font-stretch:112%;max-width:560px}
+.searchWrap{position:relative;width:min(100%,430px)}
+.search{display:flex;border-bottom:1px solid var(--mute)}
+.search:focus-within{border-color:var(--fg)}
+.search input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--fg);padding:14px 2px;font-size:16px}
+.search input::placeholder{color:var(--mute)}
+.search button{background:transparent;border:0;color:var(--fg);padding:0 4px 0 16px;font-weight:600;cursor:pointer}
+.suggest{position:absolute;top:calc(100% + 6px);left:0;width:100%;background:#0e0e0e;border:1px solid #333;display:none;z-index:100;box-shadow:0 18px 40px rgba(0,0,0,.7)}
+.suggest.open{display:block}
+.suggestItem{padding:12px 14px;display:flex;justify-content:space-between;gap:15px;cursor:pointer;border-bottom:1px solid var(--line)}
+.suggestItem:last-child{border-bottom:0}
+.suggestItem:hover,.suggestItem.active{background:#1c1c1c}
+.suggestTitle{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.suggestYear{color:var(--mute);font-size:12px;flex-shrink:0}
+.suggestMessage{padding:14px;color:var(--mute);font-size:13px}
+.strip{max-width:1250px;margin:auto;padding:0 22px;display:flex;gap:10px;height:clamp(300px,54vh,540px)}
+.stripMsg{color:var(--mute);align-self:center;font-size:15px}
+.slot{flex:1 1 0;min-width:0;border:0;padding:0;background:#111;cursor:pointer;overflow:hidden;transition:flex .5s cubic-bezier(.2,.7,.2,1)}
+.slot:hover,.slot:focus-visible{flex-grow:2.6}
+.slot img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) brightness(.75);transition:filter .4s}
+.slot:hover img,.slot:focus-visible img{filter:none}
+.bigword{max-width:1250px;margin:0 auto;padding:0 22px;font-size:clamp(80px,17vw,260px);font-weight:200;font-stretch:125%;line-height:.9;color:#232323;white-space:nowrap;overflow:hidden;height:.6em;user-select:none;transition:color .3s}
+.strip:hover+.bigword{color:#3a3a3a}
+.wrap{width:1250px;max-width:100%;margin:auto;padding:40px 22px}
+.sectionTitle{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:20px}
+.sectionTitle h2{font-size:30px;font-weight:300;font-stretch:112%}
+.sectionTitle span{color:var(--mute);font-size:14px}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}
+.filter{white-space:nowrap;background:transparent;color:var(--mute);border:1px solid #333;padding:8px 16px;border-radius:2px;cursor:pointer;transition:.15s}
+.filter.active,.filter:hover{background:var(--fg);color:#000;border-color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.card{background:transparent;cursor:pointer}
+.poster{aspect-ratio:2/3;background:#141414;overflow:hidden}
+.poster img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05);transition:filter .35s,transform .5s}
+.card:hover .poster img,.card:focus-visible .poster img,.trend:hover .poster img{filter:none;transform:scale(1.04)}
+.placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:200;font-stretch:125%;color:var(--mute)}
+.info{padding:10px 0}
+.info h3{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:12px;margin-top:5px}
+.rating{color:var(--fg)}
+.more{text-align:center;margin-top:30px}
+.detail{display:none;border:1px solid var(--line);margin-top:14px;scroll-margin-top:80px;background:#0a0a0a}
+.detail.show{display:block}
+.detailIn{display:grid;grid-template-columns:260px 1fr;gap:34px;padding:30px}
+.detailPoster{aspect-ratio:2/3;background:#141414;overflow:hidden}
+.detailPoster img{width:100%;height:100%;object-fit:cover}
+.detailText h2{font-size:clamp(28px,4vw,48px);font-weight:300;font-stretch:112%;line-height:1.05;margin-bottom:8px}
+.tagline{color:var(--gold);margin-bottom:12px}
+.detailText p{color:#bdbab3;line-height:1.7;margin:16px 0;max-width:70ch}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid #333;color:var(--mute);padding:5px 11px;font-size:12px}
+.close{background:transparent;border:1px solid #333;color:var(--fg);padding:7px 14px;cursor:pointer;margin-bottom:16px;border-radius:2px}
+.close:hover{border-color:var(--fg)}
+.actions{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px}
+.trailer{margin-top:20px;aspect-ratio:16/9;max-width:640px}
+.trailer iframe{width:100%;height:100%;border:0}
+.recgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.match{color:var(--gold)}
+.trending{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px}
+.trend{flex:0 0 150px;cursor:pointer}
+.trend h3{font-size:13px;font-weight:600;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{padding:50px 10px;text-align:center;color:var(--mute);display:none}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:35px 22px;text-align:center;color:#666;font-size:13px}
+.loading{padding:40px;text-align:center;color:var(--mute);grid-column:1/-1}
+@media(max-width:1050px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){
+.grid{grid-template-columns:repeat(2,1fr);gap:12px}
+.recgrid{grid-template-columns:repeat(2,1fr)}
+.detailIn{grid-template-columns:130px 1fr;gap:18px;padding:18px}
+.keyin{flex-direction:column}
+.strip{gap:6px;height:clamp(240px,42vh,360px)}
+.slot:nth-child(n+6){display:none}
+.tag{display:none}
+}
+@media(max-width:450px){.detailIn{grid-template-columns:1fr}.detailPoster{max-width:210px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ---------- Login ---------- */
+.navR{display:flex;align-items:center;gap:14px}
+.navR .btn{padding:7px 14px;font-size:13px}
+#who{color:var(--fg)}
+body.locked{overflow:hidden}
+.auth{position:fixed;inset:0;z-index:200;background:var(--bg);display:none;grid-template-columns:1.1fr 1fr;overflow:auto}
+body.locked .auth{display:grid}
+.authClose{position:absolute;top:18px;right:22px;z-index:2;background:transparent;border:1px solid #333;color:var(--fg);padding:7px 14px;border-radius:2px;cursor:pointer;font-size:13px}
+.authClose:hover{border-color:var(--fg)}
+.authArt{position:relative;border-right:1px solid var(--line);padding:32px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;min-height:260px}
+.authArt .logo{position:relative;z-index:1}
+.authWord{font-size:clamp(70px,13vw,190px);font-weight:200;font-stretch:125%;line-height:.9;color:#1f1f1f;white-space:nowrap;position:relative;z-index:1}
+.authArt p{position:relative;z-index:1;color:var(--mute);max-width:34ch;line-height:1.6;margin-bottom:18px}
+.authForm{display:flex;align-items:center;justify-content:center;padding:32px}
+.authBox{width:min(100%,380px)}
+.authBox h2{font-size:34px;font-weight:300;font-stretch:112%;margin-bottom:8px}
+.authBox .sub{color:var(--mute);font-size:14px;margin-bottom:26px}
+.authTabs{display:flex;gap:8px;margin-bottom:26px}
+.field{margin-bottom:18px}
+.field label{display:block;color:var(--mute);font-size:13px;margin-bottom:4px}
+.field input{width:100%;background:transparent;border:0;border-bottom:1px solid var(--mute);color:var(--fg);padding:10px 2px;font-size:16px;outline:0}
+.field input:focus{border-color:var(--fg)}
+.pwRow{position:relative}
+.pwRow button{position:absolute;right:0;bottom:8px;background:transparent;border:0;color:var(--mute);cursor:pointer;font-size:13px}
+.pwRow button:hover{color:var(--fg)}
+.authErr{min-height:20px;color:#e0867a;font-size:13px;margin-bottom:12px}
+.authBox .btn{width:100%;padding:13px}
+.authSwitch{margin-top:18px;color:var(--mute);font-size:13px;text-align:center}
+.authSwitch button{background:none;border:0;color:var(--fg);cursor:pointer;text-decoration:underline}
+@media(max-width:800px){.auth{grid-template-columns:1fr}.authArt{border-right:0;border-bottom:1px solid var(--line);min-height:0}.authWord{font-size:64px}.authArt p{display:none}}
+
+/* ---------- Private library ---------- */
+.libTabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:22px}
+.libTab{white-space:nowrap;background:transparent;color:var(--mute);border:1px solid #333;padding:8px 16px;border-radius:2px;cursor:pointer;transition:.15s}
+.libTab.active,.libTab:hover{background:var(--fg);color:#000;border-color:var(--fg)}
+.libStats{color:var(--mute);font-size:14px;margin-bottom:18px}
+.myPanel{margin-top:24px;padding:18px;border:1px solid var(--line);max-width:640px}
+.myPanel h4{font-size:13px;font-weight:600;color:var(--mute);margin-bottom:12px}
+.myRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.btn.tog.on{background:var(--fg);color:#000;border-color:var(--fg)}
+.stars{display:flex;gap:2px}
+.stars button{background:transparent;border:0;color:#444;font-size:26px;cursor:pointer;line-height:1;padding:0 2px}
+.stars button.on{color:var(--gold)}
+.stars button:hover{color:var(--fg)}
+.myPanel textarea{width:100%;min-height:80px;background:transparent;border:1px solid #333;color:var(--fg);padding:10px;font:inherit;font-size:14px;resize:vertical;outline:0}
+.myPanel textarea:focus{border-color:var(--fg)}
+.saved{color:var(--gold);font-size:13px}
+
+/* ---------- Where to watch ---------- */
+.where{margin-top:24px;max-width:640px}
+.whereHead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.whereHead h4{font-size:13px;font-weight:600;color:var(--mute)}
+.whereHead select{background:#0a0a0a;color:var(--fg);border:1px solid #333;padding:5px 8px;font:inherit;font-size:13px;border-radius:2px}
+.provGroup{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.provGroup>span{width:64px;color:var(--mute);font-size:13px}
+.provs{display:flex;flex-wrap:wrap;gap:8px}
+.prov img{width:44px;height:44px;border-radius:8px;display:block}
+.where small{color:#666;font-size:12px}
+.where small a{color:var(--mute)}
+
+/* ---------- Public reviews ---------- */
+.reviews{margin-top:30px;max-width:640px}
+.reviews h3{font-size:20px;font-weight:300;font-stretch:112%;margin-bottom:4px}
+.revSub{color:var(--mute);font-size:13px;margin-bottom:16px}
+.revForm{border:1px solid var(--line);padding:16px;margin-bottom:20px}
+.revForm textarea{width:100%;min-height:80px;background:transparent;border:1px solid #333;color:var(--fg);padding:10px;font:inherit;font-size:14px;resize:vertical;outline:0;margin:8px 0 10px}
+.revForm textarea:focus{border-color:var(--fg)}
+.rev{border-top:1px solid var(--line);padding:14px 0}
+.revTop{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:6px;font-size:14px}
+.revTop b{font-weight:600}
+.revTop .when{color:var(--mute);font-size:12px}
+.revStars{color:var(--gold);letter-spacing:2px;font-size:14px}
+.revText{color:#bdbab3;line-height:1.6;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.revDel{background:none;border:0;color:var(--mute);cursor:pointer;font-size:12px;text-decoration:underline;margin-top:6px}
+.revDel:hover{color:var(--fg)}
+
+.otpDemo{border:1px dashed var(--gold);color:var(--gold);padding:10px 12px;font-size:13px;line-height:1.5;margin-bottom:18px}
+.otpLinks{display:flex;justify-content:space-between;margin-top:16px;font-size:13px}
+.otpLinks button{background:none;border:0;color:var(--mute);cursor:pointer;text-decoration:underline}
+.otpLinks button:hover{color:var(--fg)}
+.otpLinks button:disabled{opacity:.5;cursor:default;text-decoration:none}
+
+/* ---------- Quick actions on posters ---------- */
+.poster{position:relative}
+.qbar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;padding:26px 8px 10px;background:linear-gradient(transparent,#000d);opacity:0;transition:opacity .2s}
+.card:hover .qbar,.trend:hover .qbar,.qbar:focus-within{opacity:1}
+@media(hover:none){.qbar{opacity:1}}
+.qb{width:34px;height:34px;border-radius:50%;border:1px solid #666;background:#000a;color:var(--fg);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;transition:.15s}
+.qb:hover{border-color:var(--fg)}
+.qb.on{background:var(--gold);border-color:var(--gold);color:#000}
+.forgot{margin:-6px 0 14px;text-align:right}
+.forgot button{background:none;border:0;color:var(--mute);cursor:pointer;font-size:13px;text-decoration:underline}
+.forgot button:hover{color:var(--fg)}
+</style>
+</head>
+<body>
+
+<div class="auth" id="auth" role="dialog" aria-modal="true" aria-label="Login or sign up">
+  <button class="authClose" onclick="closeLogin()">✕ Close</button>
+  <div class="authArt">
+    <div class="logo">Movie<span>Mate</span></div>
+    <div>
+      <p>Sign in to get movie recommendations based on genres, keywords and ratings.</p>
+      <div class="authWord" aria-hidden="true">MovieMate</div>
+    </div>
+  </div>
+  <div class="authForm">
+    <div class="authBox">
+      <h2 id="authTitle">Sign in</h2>
+      <div class="sub" id="authSub">Welcome back. Pick up where you left off.</div>
+      <div id="credStep">
+      <div class="field" id="nameField" style="display:none">
+        <label for="authName">Name</label>
+        <input id="authName" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input id="authEmail" type="email" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="authPass">Password</label>
+        <div class="pwRow">
+          <input id="authPass" type="password" autocomplete="current-password">
+          <button type="button" id="pwToggle" onclick="togglePw()">Show</button>
+        </div>
+      </div>
+      <div class="forgot" id="forgotRow"><button type="button" onclick="startReset()">Forgot password?</button></div>
+      </div>
+      <div id="newPassStep" style="display:none">
+        <div class="field">
+          <label for="newPass">New password</label>
+          <input id="newPass" type="password" autocomplete="new-password">
+        </div>
+      </div>
+      <div id="otpStep" style="display:none">
+        <div class="otpDemo" id="otpDemo" style="display:none"></div>
+        <div class="field">
+          <label for="otpInput">6-digit code</label>
+          <input id="otpInput" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="letter-spacing:.4em;font-size:22px">
+        </div>
+      </div>
+      <div class="authErr" id="authErr" role="alert"></div>
+      <button class="btn" id="newPassBtn" onclick="setNewPassword()" style="display:none">Save new password</button>
+      <button class="btn" id="otpBtn" onclick="verifyOtp()" style="display:none">Verify and create account</button>
+      <div class="otpLinks" id="otpLinks" style="display:none"><button type="button" id="resendBtn" onclick="resendOtp()">Resend code</button><button type="button" onclick="backToForm()">Change email</button></div>
+      <button class="btn" id="authBtn" onclick="submitAuth()">Sign in</button>
+      <div class="authSwitch" id="authSwitch"><span id="switchText">New to MovieMate?</span> <button type="button" id="switchBtn" onclick="toggleAuthMode()">Create an account</button></div>
+    </div>
+  </div>
+</div>
+
+<header><div class="nav">
+  <div class="logo">Movie<span>Mate</span></div>
+  <div class="navR">
+    <button class="btn alt" id="libBtn" style="display:none" onclick="$('library').scrollIntoView({behavior:'smooth'})">My Library</button>
+    <span id="who"></span>
+    <button class="btn alt" id="loginBtn" onclick="openLogin()">Login</button>
+    <button class="btn alt" id="logoutBtn" onclick="logout()" style="display:none">Sign out</button>
+  </div>
+</div></header>
+
+<div class="keybar"><div class="keyin">
+  <input id="apiKey" type="password" placeholder="Enter TMDB API key (v3) or read access token (v4)" autocomplete="off">
+  <button class="btn" onclick="saveKey()">Load Movies</button>
+</div></div>
+
+<section class="hero">
+  <div class="heroTop">
+    <h1>Find your next favourite movie.</h1>
+    <div class="searchWrap">
+      <div class="search">
+        <input id="searchInput" placeholder="Search for a movie" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="suggest">
+        <button onclick="searchMovies()">Search</button>
+      </div>
+      <div id="suggest" class="suggest" role="listbox"></div>
+    </div>
+  </div>
+  <div class="strip" id="strip"><div class="stripMsg">Enter your TMDB API key above to load this week's posters.</div></div>
+  <div class="bigword" id="bigword" aria-hidden="true">MovieMate</div>
+</section>
+
+<div class="wrap">
+  <div class="sectionTitle"><h2>Browse Movies</h2><span id="status">Enter your TMDB API key</span></div>
+  <div class="filters" id="filters"></div>
+  <div id="detail" class="detail"></div>
+  <div id="grid" class="grid" style="margin-top:25px"><div class="loading">Enter your TMDB API key above to start MovieMate.</div></div>
+  <div class="empty" id="empty">No movies found.</div>
+  <div class="more"><button class="btn alt" id="moreBtn" style="display:none" onclick="loadMore()">Load more</button></div>
+</div>
+
+<section class="wrap" id="library" style="display:none">
+  <div class="sectionTitle"><h2>My Library</h2><span>Private to your account</span></div>
+  <div class="libStats" id="libStats"></div>
+  <div class="libTabs" id="libTabs">
+    <button class="libTab active" data-t="watchlist">Watchlist</button>
+    <button class="libTab" data-t="watched">Watched</button>
+    <button class="libTab" data-t="liked">Liked</button>
+  </div>
+  <div id="libGrid" class="grid"></div>
+  <div class="empty" id="libEmpty"></div>
+</section>
+
+<section class="wrap">
+  <div class="sectionTitle"><h2>Trending Now</h2><span>This week</span></div>
+  <div id="trending" class="trending"><div class="loading">Loading trending movies...</div></div>
+</section>
+
+<footer>MovieMate — Movie Recommendation System<br><small>Powered by TMDB API · Content-based recommendations</small></footer>
+
+<script>
+// TMDB key, stored encoded (reversed + base64) so it is not readable as plain text in the source.
+const DEFAULT_KEY = atob("YzZkYjhkOGUxNTMwNzYxNTc0ZTFmMThlOWE4NDViODE=").split("").reverse().join("");
+let KEY = DEFAULT_KEY || localStorage.getItem("moviemate_tmdb_key") || "";
+const $ = id => document.getElementById(id);
+const searchInput = $("searchInput"), suggestEl = $("suggest");
+$("apiKey").value = KEY;
+if (DEFAULT_KEY) document.querySelector(".keybar").style.display = "none";
+
+const GENRES = {28:"Action",12:"Adventure",16:"Animation",35:"Comedy",80:"Crime",99:"Documentary",18:"Drama",10751:"Family",14:"Fantasy",36:"History",27:"Horror",9648:"Mystery",10749:"Romance",878:"Sci-Fi",53:"Thriller",10752:"War",37:"Western"};
+const FILTERS = [["all","All"],[28,"Action"],[12,"Adventure"],[16,"Animation"],[35,"Comedy"],[80,"Crime"],[18,"Drama"],[27,"Horror"],[10749,"Romance"],[878,"Sci-Fi"],[53,"Thriller"]];
+$("filters").innerHTML = FILTERS.map(([id,n],i) =>
+  `<button class="filter${i?"":" active"}" data-g="${id}">${n}</button>`).join("");
+$("filters").addEventListener("click", e => {
+  const b = e.target.closest(".filter"); if (b) setGenre(b.dataset.g);
+});
+
+// Browse state: one source of truth for what the grid shows.
+let mode = {type:"popular", genre:"all", q:"", page:0, total:1};
+let shown = [];            // movies currently in the grid
+const cache = {};          // id -> movie data (list or detail), never mixed into `shown`
+
+/* ---------- API ---------- */
+async function api(url, params = {}) {
+  const u = new URL("https://api.themoviedb.org/3" + url);
+  u.searchParams.set("language", "en-US");
+  Object.entries(params).forEach(([k,v]) => u.searchParams.set(k, v));
+  const opts = {};
+  if (KEY.length > 40) opts.headers = {Authorization: "Bearer " + KEY};  // v4 token
+  else u.searchParams.set("api_key", KEY);                                // v3 key
+  const r = await fetch(u, opts);
+  if (!r.ok) throw new Error("TMDB request failed (" + r.status + ")");
+  return r.json();
+}
+
+function saveKey() {
+  const k = $("apiKey").value.trim();
+  if (!k) { setStatus("Enter your TMDB API key first."); return; }
+  KEY = k;
+  localStorage.setItem("moviemate_tmdb_key", KEY);
+  resetBrowse(); loadTrending();
+}
+
+/* ---------- Helpers ---------- */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const year = m => m.release_date ? m.release_date.slice(0,4) : "N/A";
+const rating = m => m.vote_average ? m.vote_average.toFixed(1) : "N/A";
+const setStatus = t => $("status").textContent = t;
+const genreIds = m => m.genre_ids || (m.genres || []).map(g => g.id);
+
+function posterHTML(m) {
+  if (m.poster_path) return `<img src="https://image.tmdb.org/t/p/w500${m.poster_path}" alt="${esc(m.title)} poster" loading="lazy">`;
+  const letters = (m.title || "M").split(" ").slice(0,2).map(x => x[0]).join("");
+  return `<div class="placeholder">${esc(letters)}</div>`;
+}
+
+function cardHTML(m, handler, extra = "") {
+  cache[m.id] = cache[m.id] || m;
+  return `<div class="card" tabindex="0" role="button" onclick="${handler}(${m.id})" onkeydown="if(event.key==='Enter')${handler}(${m.id})">
+    <div class="poster">${posterHTML(m)}${quickBar(m.id)}</div>
+    <div class="info"><h3>${esc(m.title)}</h3>
+      <div class="meta"><span>${year(m)}</span><span class="rating">★ ${rating(m)}</span></div>${extra}</div></div>`;
+}
+
+/* ---------- Browse: popular / genre / search with Load more ---------- */
+function resetBrowse(type = "popular", opts = {}) {
+  mode = {type, genre: opts.genre ?? "all", q: opts.q ?? "", page: 0, total: 1};
+  shown = [];
+  $("grid").innerHTML = '<div class="loading">Loading movies...</div>';
+  loadMore(true);
+}
+
+async function loadMore(first) {
+  if (!KEY) return;
+  if (mode.page >= mode.total) return;
+  const snapshot = mode, page = mode.page + 1;
+  $("moreBtn").disabled = true;
+  try {
+    let d;
+    if (mode.type === "search") d = await api("/search/movie", {query: mode.q, page, include_adult: false});
+    else if (mode.genre !== "all") d = await api("/discover/movie", {with_genres: mode.genre, sort_by: "popularity.desc", "vote_count.gte": 100, page});
+    else d = await api("/movie/popular", {page});
+    if (snapshot !== mode) return;   // user changed filter/search meanwhile
+    mode.page = page; mode.total = Math.min(d.total_pages || 1, 500);
+    const seen = new Set(shown.map(m => m.id));
+    shown.push(...(d.results || []).filter(m => !seen.has(m.id)));
+    renderGrid();
+  } catch (e) {
+    if (first) $("grid").innerHTML = '<div class="loading">The API key is invalid or the TMDB request failed.</div>';
+    setStatus("API error");
+  } finally { $("moreBtn").disabled = false; }
+}
+
+function renderGrid() {
+  $("empty").style.display = shown.length ? "none" : "block";
+  $("grid").innerHTML = shown.map(m => cardHTML(m, "openMovie")).join("");
+  $("moreBtn").style.display = mode.page < mode.total ? "inline-block" : "none";
+  setStatus(mode.type === "search" ? `${shown.length} results for "${mode.q}"` : `${shown.length} movies loaded`);
+}
+
+function setActiveChip(g) {
+  document.querySelectorAll(".filter").forEach(b => b.classList.toggle("active", b.dataset.g === String(g)));
+}
+function setGenre(g) { setActiveChip(g); searchInput.value = ""; resetBrowse("popular", {genre: g}); }
+
+function searchMovies() {
+  hideSuggestions();
+  if (!KEY) { setStatus("Enter your TMDB API key first."); return; }
+  const q = searchInput.value.trim();
+  setActiveChip("all");
+  if (!q) { resetBrowse(); return; }
+  resetBrowse("search", {q});
+}
+
+/* ---------- Movie detail (fetches full data, trailer, keywords) ---------- */
+let openToken = 0, lastOpenId = null;
+async function openMovie(id) {
+  const token = ++openToken, box = $("detail"); lastOpenId = id;
+  box.classList.add("show");
+  box.innerHTML = '<div class="loading">Loading details...</div>';
+  box.scrollIntoView({behavior: "smooth", block: "start"});
+  let m;
+  try {
+    m = await api("/movie/" + id, {append_to_response: "videos,keywords,watch/providers"});
+  } catch (e) {
+    if (token === openToken) box.innerHTML = '<div class="loading">Could not load this movie.</div>';
+    return;
+  }
+  if (token !== openToken) return;
+  cache[id] = m;
+  const vids = (m.videos?.results || []).filter(v => v.site === "YouTube");
+  const trailer = vids.find(v => v.type === "Trailer" && v.official) || vids.find(v => v.type === "Trailer") || vids[0];
+  const runtime = m.runtime ? ` · ${Math.floor(m.runtime/60)}h ${m.runtime%60}m` : "";
+  box.innerHTML = `
+  <div class="detailIn">
+    <div class="detailPoster">${posterHTML(m)}</div>
+    <div class="detailText">
+      <button class="close" onclick="closeDetail()">✕ Close</button>
+      <h2>${esc(m.title)}</h2>
+      ${m.tagline ? `<div class="tagline">${esc(m.tagline)}</div>` : ""}
+      <div class="meta" style="max-width:320px;font-size:14px"><span>${year(m)}${runtime}</span><span class="rating">★ ${rating(m)}</span></div>
+      <p>${esc(m.overview || "No overview available.")}</p>
+      <div class="chips">${(m.genres || []).map(g => `<span class="chip">${esc(g.name)}</span>`).join("")}</div>
+      <div id="whereBox"></div>
+      <div id="myPanel"></div>
+      <div id="reviewsBox"></div>
+      <div class="actions">
+        <button class="btn" onclick="recommend(${m.id})">Find similar movies</button>
+        ${trailer ? `<button class="btn alt" id="trailerBtn" onclick="toggleTrailer('${esc(trailer.key)}')">▶ Watch trailer</button>` : ""}
+      </div>
+      <div id="trailerBox"></div>
+      <div id="recommendations"></div>
+    </div>
+  </div>`;
+  renderWhere(m.id);
+  renderMyPanel(m.id);
+  renderReviews(m.id);
+}
+
+function closeDetail() { openToken++; $("detail").classList.remove("show"); $("detail").innerHTML = ""; }
+
+function toggleTrailer(key) {
+  const tb = $("trailerBox"), btn = $("trailerBtn");
+  if (tb.innerHTML) { tb.innerHTML = ""; btn.textContent = "▶ Watch trailer"; return; }
+  tb.innerHTML = `<div class="trailer"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(key)}?autoplay=1" title="Trailer" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe></div>`;
+  btn.textContent = "✕ Hide trailer";
+}
+
+/* ---------- Content-based recommendations ----------
+   Candidates come from TMDB's /similar and /recommendations.
+   Each is scored on genre overlap (Jaccard), keyword overlap (Jaccard),
+   plus a small boost for audience rating. */
+const jaccard = (a, b) => {
+  const A = new Set(a), B = new Set(b);
+  const inter = [...A].filter(x => B.has(x)).length, union = new Set([...A, ...B]).size;
+  return union ? inter / union : 0;
+};
+
+async function recommend(id) {
+  const box = $("recommendations"), token = openToken;
+  box.innerHTML = '<div class="loading">Finding similar movies...</div>';
+  try {
+    const base = cache[id];
+    const baseGenres = genreIds(base);
+    const baseKw = (base.keywords?.keywords || []).map(k => k.id);
+    const [sim, rec] = await Promise.all([api(`/movie/${id}/similar`), api(`/movie/${id}/recommendations`)]);
+    const pool = new Map();
+    [...(rec.results || []), ...(sim.results || [])].forEach(m => {
+      if (m.id !== id && m.vote_count >= 50 && !pool.has(m.id)) pool.set(m.id, m);
+    });
+    // First pass: genres + rating. Then fetch keywords for the best candidates.
+    let cands = [...pool.values()].map(m => ({m, s: jaccard(baseGenres, genreIds(m)) * 60 + (m.vote_average || 0) * 2}))
+      .sort((a, b) => b.s - a.s).slice(0, 12);
+    const kws = await Promise.all(cands.map(c =>
+      api(`/movie/${c.m.id}/keywords`).then(d => (d.keywords || []).map(k => k.id)).catch(() => [])));
+    cands.forEach((c, i) => { c.kw = jaccard(baseKw, kws[i]); c.s += c.kw * 40; });
+    cands.sort((a, b) => b.s - a.s);
+    if (token !== openToken || !$("recommendations")) return;
+    const top = cands.slice(0, 6);
+    if (!top.length) { box.innerHTML = '<p style="color:#777;margin-top:20px">No similar movies found.</p>'; return; }
+    box.innerHTML = `<h3 style="margin:30px 0 15px">Recommended for you</h3><div class="recgrid">` +
+      top.map(c => {
+        const pct = Math.min(99, Math.round((c.s / 130) * 100 + 35));
+        return cardHTML(c.m, "openMovie", `<div class="meta"><span class="match">${pct}% match</span></div>`);
+      }).join("") + "</div>";
+  } catch (e) {
+    box.innerHTML = '<p style="color:#777;margin-top:20px">Recommendations are unavailable right now.</p>';
+  }
+}
+
+/* ---------- Search suggestions (debounced, stale-safe, keyboard-navigable) ---------- */
+let sugTimer = null, sugSeq = 0, sugActive = -1;
+
+searchInput.addEventListener("input", () => {
+  clearTimeout(sugTimer);
+  const q = searchInput.value.trim();
+  if (!q) { hideSuggestions(); return; }
+  if (!KEY) { showMsg("Enter your TMDB API key first."); return; }
+  sugTimer = setTimeout(() => fetchSuggestions(q), 300);
+});
+
+searchInput.addEventListener("keydown", e => {
+  const items = [...suggestEl.querySelectorAll(".suggestItem")];
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    if (!items.length) return;
+    e.preventDefault();
+    sugActive = (sugActive + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+    items.forEach((el, i) => el.classList.toggle("active", i === sugActive));
+    items[sugActive].scrollIntoView({block: "nearest"});
+  } else if (e.key === "Enter") {
+    if (sugActive >= 0 && items[sugActive]) pickSuggestion(Number(items[sugActive].dataset.id));
+    else searchMovies();
+  } else if (e.key === "Escape") hideSuggestions();
+});
+
+function showMsg(t) {
+  suggestEl.innerHTML = `<div class="suggestMessage">${esc(t)}</div>`;
+  suggestEl.classList.add("open"); searchInput.setAttribute("aria-expanded", "true");
+}
+
+async function fetchSuggestions(q) {
+  const seq = ++sugSeq;
+  showMsg("Searching...");
+  try {
+    const d = await api("/search/movie", {query: q, page: 1, include_adult: false});
+    if (seq !== sugSeq || searchInput.value.trim() !== q) return;   // stale response
+    const res = (d.results || []).slice(0, 8);
+    if (!res.length) { showMsg("No matches found"); return; }
+    sugActive = -1;
+    suggestEl.innerHTML = res.map(m => {
+      cache[m.id] = cache[m.id] || m;
+      return `<div class="suggestItem" role="option" data-id="${m.id}"><span class="suggestTitle">${esc(m.title || "Untitled")}</span><span class="suggestYear">${year(m)}</span></div>`;
+    }).join("");
+  } catch (e) { if (seq === sugSeq) showMsg("Suggestions unavailable."); }
+}
+
+suggestEl.addEventListener("click", e => {
+  const it = e.target.closest(".suggestItem"); if (it) pickSuggestion(Number(it.dataset.id));
+});
+
+function pickSuggestion(id) {
+  hideSuggestions(); searchInput.value = "";
+  openMovie(id);   // opens detail only; the Browse list is left untouched
+}
+
+function hideSuggestions() {
+  clearTimeout(sugTimer); sugSeq++; sugActive = -1;
+  suggestEl.classList.remove("open"); suggestEl.innerHTML = "";
+  searchInput.setAttribute("aria-expanded", "false");
+}
+document.addEventListener("click", e => { if (!e.target.closest(".searchWrap")) hideSuggestions(); });
+
+/* ---------- Trending ---------- */
+async function loadTrending() {
+  if (!KEY) return;
+  try {
+    const d = await api("/trending/movie/week");
+    renderStrip(d.results || []);
+    $("trending").innerHTML = (d.results || []).slice(0, 12).map(m => {
+      cache[m.id] = cache[m.id] || m;
+      return `<div class="trend" tabindex="0" role="button" onclick="openMovie(${m.id})" onkeydown="if(event.key==='Enter')openMovie(${m.id})">
+        <div class="poster">${posterHTML(m)}${quickBar(m.id)}</div><h3>${esc(m.title)}</h3></div>`;
+    }).join("");
+  } catch (e) { $("trending").innerHTML = '<div class="loading">Trending is unavailable.</div>'; }
+}
+
+/* ---------- Hero poster strip ---------- */
+function renderStrip(list) {
+  const s = list.filter(m => m.poster_path).slice(0, 7);
+  $("strip").innerHTML = s.map(m => `<button class="slot" data-t="${esc(m.title)}" onclick="openMovie(${m.id})" aria-label="${esc(m.title)}"><img src="https://image.tmdb.org/t/p/w500${m.poster_path}" alt=""></button>`).join("");
+  if (s[0]) $("bigword").textContent = s[0].title;
+}
+["mouseover", "focusin"].forEach(ev => $("strip").addEventListener(ev, e => {
+  const b = e.target.closest(".slot"); if (b) $("bigword").textContent = b.dataset.t;
+}));
+
+/* ---------- Where to watch (TMDB watch providers, data by JustWatch) ---------- */
+const REGIONS = {IN:"India", US:"United States", GB:"United Kingdom", CA:"Canada", AU:"Australia", AE:"UAE", DE:"Germany", FR:"France", JP:"Japan", BR:"Brazil"};
+let REGION = localStorage.getItem("moviemate_region") || "IN";
+function setRegion(r, id) { REGION = r; try { localStorage.setItem("moviemate_region", r); } catch (e) {} renderWhere(id); }
+
+function renderWhere(id) {
+  const box = $("whereBox"), m = cache[id]; if (!box || !m) return;
+  const r = (m["watch/providers"]?.results || {})[REGION];
+  const groups = [["flatrate", "Stream"], ["free", "Free"], ["ads", "Free with ads"], ["rent", "Rent"], ["buy", "Buy"]];
+  const seen = new Set();
+  const rows = r ? groups.map(([k, label]) => {
+    const list = (r[k] || []).filter(p => { const key = k + p.provider_id; if (seen.has(key)) return false; seen.add(key); return true; });
+    if (!list.length) return "";
+    return `<div class="provGroup"><span>${label}</span><div class="provs">${list.map(p =>
+      `<a class="prov" href="${esc(r.link || "#")}" target="_blank" rel="noopener" title="${esc(p.provider_name)}"><img src="https://image.tmdb.org/t/p/w92${esc(p.logo_path)}" alt="${esc(p.provider_name)}"></a>`).join("")}</div></div>`;
+  }).join("") : "";
+  box.innerHTML = `<div class="where">
+    <div class="whereHead"><h4>Where to watch</h4>
+      <select onchange="setRegion(this.value, ${id})" aria-label="Region">${Object.entries(REGIONS).map(([c, n]) => `<option value="${c}"${c === REGION ? " selected" : ""}>${n}</option>`).join("")}</select></div>
+    ${rows || `<p style="color:var(--mute);font-size:14px;margin:0 0 8px">Not available on any streaming service in ${esc(REGIONS[REGION])}.</p>`}
+    <small>Streaming data by <a href="https://www.justwatch.com" target="_blank" rel="noopener">JustWatch</a></small>
+  </div>`;
+}
+
+/* ---------- Public reviews ----------
+   ReviewStore is the only place that touches storage. Right now it uses this browser's
+   localStorage (every account on this browser sees the same reviews). To share reviews
+   between devices, replace these three methods with calls to a backend (Firebase, Supabase...). */
+const ReviewStore = {
+  KEY: "moviemate_reviews",
+  _all() { try { return JSON.parse(localStorage.getItem(this.KEY)) || {}; } catch (e) { return {}; } },
+  async list(id) { return this._all()[id] || []; },
+  async save(id, rev) {
+    const all = this._all(), list = (all[id] || []).filter(r => r.user !== rev.user);
+    list.unshift(rev); all[id] = list;
+    localStorage.setItem(this.KEY, JSON.stringify(all));
+  },
+  async remove(id, user) {
+    const all = this._all(); all[id] = (all[id] || []).filter(r => r.user !== user);
+    if (!all[id].length) delete all[id];
+    localStorage.setItem(this.KEY, JSON.stringify(all));
+  }
+};
+let pubRating = 0;
+
+function setPubRating(n) {
+  pubRating = pubRating === n ? 0 : n;
+  document.querySelectorAll("#pubStars button").forEach((b, i) => b.classList.toggle("on", i < pubRating));
+}
+
+async function renderReviews(id) {
+  const box = $("reviewsBox"); if (!box) return;
+  const list = await ReviewStore.list(id);
+  if (!$("reviewsBox") || lastOpenId !== id) return;      // user opened another movie meanwhile
+  const mine = currentUser ? list.find(r => r.user === currentUser) : null;
+  const rated = list.filter(r => r.rating);
+  const avg = rated.length ? (rated.reduce((t, r) => t + r.rating, 0) / rated.length).toFixed(1) : null;
+  pubRating = mine ? mine.rating : 0;
+  const form = currentUser ? `<div class="revForm">
+      <div class="stars" id="pubStars" role="group" aria-label="Your rating">${[1,2,3,4,5].map(n => `<button class="${n <= pubRating ? "on" : ""}" onclick="setPubRating(${n})" aria-label="${n} stars">★</button>`).join("")}</div>
+      <textarea id="pubText" maxlength="1000" placeholder="Write your review. Other users will see it."></textarea>
+      <button class="btn" onclick="postReview(${id})">${mine ? "Update review" : "Post review"}</button> <span class="saved" id="pubMsg"></span>
+    </div>` : `<div class="revForm"><span style="color:var(--mute);font-size:14px">Login to write a review.</span> <button class="btn alt" onclick="requireLogin()" style="margin-left:8px">Login</button></div>`;
+  const items = list.map(r => `<div class="rev">
+      <div class="revTop"><b>${esc(r.name)}</b><span class="when">${new Date(r.ts).toLocaleDateString()}</span></div>
+      ${r.rating ? `<div class="revStars">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</div>` : ""}
+      ${r.text ? `<div class="revText">${esc(r.text)}</div>` : ""}
+      ${r.user === currentUser ? `<button class="revDel" onclick="deleteMyReview(${id})">Delete my review</button>` : ""}
+    </div>`).join("");
+  box.innerHTML = `<div class="reviews"><h3>Reviews</h3>
+    <div class="revSub">${list.length ? `${list.length} review${list.length > 1 ? "s" : ""}${avg ? ` · average ${avg} ★` : ""}` : "No reviews yet. Be the first."}</div>
+    ${form}${items}</div>`;
+  if (currentUser) $("pubText").value = mine ? mine.text : "";
+}
+
+async function postReview(id) {
+  if (!currentUser) return requireLogin();
+  const text = $("pubText").value.trim().slice(0, 1000);
+  if (!text && !pubRating) { $("pubMsg").textContent = "Add a rating or write something first."; return; }
+  const u = getUsers()[currentUser];
+  await ReviewStore.save(id, {user: currentUser, name: u ? u.name : "User", rating: pubRating, text, ts: Date.now()});
+  renderReviews(id);
+}
+async function deleteMyReview(id) {
+  if (!currentUser) return;
+  await ReviewStore.remove(id, currentUser);
+  renderReviews(id);
+}
+
+/* ---------- Quick actions on every poster ---------- */
+function quickBar(id) {
+  const e = currentUser ? getEntry(id) : blankEntry(id);
+  const b = (k, icon, label) => `<button class="qb${e[k] ? " on" : ""}" data-k="${k}" title="${label}" aria-label="${label}" onclick="event.stopPropagation();toggleFlag(${id},'${k}')" onkeydown="event.stopPropagation()">${icon}</button>`;
+  return `<div class="qbar" data-id="${id}">${b("watchlist", "+", "Add to watchlist")}${b("watched", "✓", "Mark as watched")}${b("liked", "♥", "Like")}</div>`;
+}
+function refreshQuick() {
+  document.querySelectorAll(".qbar").forEach(bar => {
+    const e = currentUser ? getEntry(bar.dataset.id) : blankEntry();
+    bar.querySelectorAll(".qb").forEach(b => b.classList.toggle("on", !!e[b.dataset.k]));
+  });
+}
+
+/* ---------- Private library (saved per account in this browser) ---------- */
+let currentUser = null, libTab = "watchlist";
+const libKey = () => "moviemate_lib_" + currentUser;
+function loadLib() { try { return JSON.parse(localStorage.getItem(libKey())) || {}; } catch (e) { return {}; } }
+function saveLib(l) { try { localStorage.setItem(libKey(), JSON.stringify(l)); } catch (e) {} }
+const blankEntry = id => ({watchlist: false, watched: false, liked: false, rating: 0, review: ""});
+const getEntry = id => Object.assign(blankEntry(id), loadLib()[id] || {});
+
+function requireLogin() {
+  openLogin();
+  $("authSub").textContent = "Login to save movies to your private library.";
+  return false;
+}
+
+function updateEntry(id, patch) {
+  if (!currentUser) return requireLogin();
+  const lib = loadLib(), m = cache[id] || {};
+  const e = Object.assign(blankEntry(id), lib[id] || {}, patch);
+  e.id = id; e.title = m.title || e.title; e.poster_path = m.poster_path ?? e.poster_path;
+  e.release_date = m.release_date || e.release_date; e.vote_average = m.vote_average ?? e.vote_average;
+  e.updated = Date.now();
+  if (!e.watchlist && !e.watched && !e.liked && !e.rating && !e.review) delete lib[id]; else lib[id] = e;
+  saveLib(lib);
+  renderMyPanel(id); renderLibrary(); refreshQuick();
+}
+
+function toggleFlag(id, k) {
+  const e = getEntry(id), patch = {[k]: !e[k]};
+  if (k === "watched" && patch.watched) patch.watchlist = false;   // watched movies leave the watchlist
+  updateEntry(id, patch);
+}
+function setMyRating(id, n) { const e = getEntry(id); updateEntry(id, {rating: e.rating === n ? 0 : n, watched: e.watched || e.rating !== n}); }
+function saveReview(id) {
+  updateEntry(id, {review: $("reviewBox").value.trim().slice(0, 1000)});
+  const t = $("savedMsg"); if (t) t.textContent = "Saved to your library";
+}
+
+function renderMyPanel(id) {
+  const box = $("myPanel"); if (!box) return;
+  if (!currentUser) {
+    box.innerHTML = '<div class="myPanel"><div class="myRow"><span style="color:var(--mute);font-size:14px">Login to save this movie, rate it and write private notes.</span><button class="btn alt" onclick="requireLogin()">Login</button></div></div>';
+    return;
+  }
+  const e = getEntry(id), draft = $("reviewBox") ? $("reviewBox").value : e.review;
+  const tog = (k, off, on) => `<button class="btn alt tog${e[k] ? " on" : ""}" onclick="toggleFlag(${id},'${k}')">${e[k] ? on : off}</button>`;
+  box.innerHTML = `<div class="myPanel">
+    <h4>Your library</h4>
+    <div class="myRow">${tog("watchlist", "+ Watchlist", "✓ In watchlist")}${tog("watched", "Mark watched", "✓ Watched")}${tog("liked", "♡ Like", "♥ Liked")}</div>
+    <div class="myRow"><div class="stars" role="group" aria-label="Your rating">${[1,2,3,4,5].map(n => `<button class="${n <= e.rating ? "on" : ""}" onclick="setMyRating(${id},${n})" aria-label="${n} star${n > 1 ? "s" : ""}">★</button>`).join("")}</div>
+      <span style="color:var(--mute);font-size:13px">${e.rating ? e.rating + " / 5" : "Rate this movie"}</span></div>
+    <textarea id="reviewBox" maxlength="1000" placeholder="Write a private note or review"></textarea>
+    <div class="myRow" style="margin:10px 0 0"><button class="btn alt" onclick="saveReview(${id})">Save note</button><span class="saved" id="savedMsg"></span></div>
+  </div>`;
+  $("reviewBox").value = draft;
+}
+
+function renderLibrary() {
+  const sec = $("library");
+  sec.style.display = currentUser ? "block" : "none";
+  if (!currentUser) return;
+  const all = Object.values(loadLib()).sort((a, b) => (b.updated || 0) - (a.updated || 0));
+  const rated = all.filter(e => e.rating);
+  const avg = rated.length ? (rated.reduce((t, e) => t + e.rating, 0) / rated.length).toFixed(1) : null;
+  $("libStats").textContent = `${all.filter(e => e.watched).length} watched · ${all.filter(e => e.watchlist).length} in watchlist · ${all.filter(e => e.liked).length} liked` + (avg ? ` · your average rating ${avg} ★` : "");
+  document.querySelectorAll(".libTab").forEach(b => b.classList.toggle("active", b.dataset.t === libTab));
+  const items = all.filter(e => e[libTab]);
+  $("libGrid").innerHTML = items.map(e => cardHTML(e, "openMovie",
+    e.rating ? `<div class="meta"><span class="match">Your rating ${"★".repeat(e.rating)}</span></div>` : "")).join("");
+  const msgs = {watchlist: "Your watchlist is empty. Open a movie and tap + Watchlist.", watched: "Nothing marked as watched yet.", liked: "You haven't liked any movies yet."};
+  $("libEmpty").textContent = msgs[libTab];
+  $("libEmpty").style.display = items.length ? "none" : "block";
+}
+$("libTabs").addEventListener("click", e => {
+  const b = e.target.closest(".libTab"); if (b) { libTab = b.dataset.t; renderLibrary(); }
+});
+
+/* ---------- Login (stored in this browser only) ---------- */
+let authMode = "signin";
+const USERS_KEY = "moviemate_users", SESSION_KEY = "moviemate_session";
+const getUsers = () => { try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch (e) { return {}; } };
+const setErr = t => $("authErr").textContent = t;
+
+async function hashPw(pw, salt) {
+  const data = new TextEncoder().encode(salt + pw);
+  if (window.crypto && crypto.subtle) {
+    const buf = await crypto.subtle.digest("SHA-256", data);
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  let h = 5381; for (const b of data) h = ((h << 5) + h + b) >>> 0;   // fallback if SubtleCrypto is unavailable
+  return String(h);
+}
+
+function toggleAuthMode() {
+  authMode = authMode === "signin" ? "signup" : "signin";
+  const up = authMode === "signup";
+  $("authTitle").textContent = up ? "Create account" : "Sign in";
+  $("authSub").textContent = up ? "It takes a few seconds." : "Welcome back. Pick up where you left off.";
+  $("nameField").style.display = up ? "block" : "none";
+  $("authBtn").textContent = up ? "Send verification code" : "Sign in";
+  showStep("cred");
+  $("forgotRow").style.display = up ? "none" : "block";
+  $("switchText").textContent = up ? "Already have an account?" : "New to MovieMate?";
+  $("switchBtn").textContent = up ? "Sign in" : "Create an account";
+  $("authPass").autocomplete = up ? "new-password" : "current-password";
+  setErr("");
+}
+
+function togglePw() {
+  const p = $("authPass"), show = p.type === "password";
+  p.type = show ? "text" : "password";
+  $("pwToggle").textContent = show ? "Hide" : "Show";
+}
+
+async function submitAuth() {
+  const email = $("authEmail").value.trim().toLowerCase(), pw = $("authPass").value;
+  const name = $("authName").value.trim();
+  if (!/^\S+@\S+\.\S+$/.test(email)) return setErr("Enter a valid email address.");
+  if (authMode === "signup" && !name) return setErr("Enter your name.");
+  if (pw.length < 6) return setErr("Password must be at least 6 characters.");
+  const users = getUsers();
+  if (authMode === "signup") {
+    if (users[email]) return setErr("An account with this email already exists. Sign in instead.");
+    return startSignup(email, name, pw);
+  } else {
+    const u = users[email];
+    if (!u || u.hash !== await hashPw(pw, u.salt)) return setErr("Email or password is incorrect.");
+  }
+  localStorage.setItem(SESSION_KEY, email);
+  $("authPass").value = "";
+  enterApp(email);
+}
+
+function openLogin() {
+  document.body.classList.add("locked");
+  setErr("");
+  setTimeout(() => $(authMode === "signup" ? "authName" : "authEmail").focus(), 50);
+}
+function closeLogin() { document.body.classList.remove("locked"); setErr(""); }
+
+function enterApp(email) {
+  const u = getUsers()[email];
+  currentUser = email;
+  $("who").textContent = u ? u.name : email;
+  $("loginBtn").style.display = "none";
+  $("logoutBtn").style.display = "inline-block";
+  $("libBtn").style.display = "inline-block";
+  closeLogin();
+  renderLibrary();
+  refreshQuick();
+  if ($("myPanel")) renderMyPanel(lastOpenId);
+  if ($("reviewsBox")) renderReviews(lastOpenId);
+}
+
+function logout() {
+  localStorage.removeItem(SESSION_KEY);
+  currentUser = null;
+  closeDetail();
+  renderLibrary();
+  refreshQuick();
+  $("libBtn").style.display = "none";
+  $("who").textContent = "";
+  $("logoutBtn").style.display = "none";
+  $("loginBtn").style.display = "inline-block";
+}
+
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.body.classList.contains("locked")) closeLogin(); });
+
+/* ---------- Email OTP verification for sign up ----------
+   To send real emails, create a free EmailJS account (emailjs.com), add an email service and a
+   template that uses {{to_email}}, {{name}} and {{otp}}, then fill in the three values below.
+   Until then the app runs in demo mode and shows the code on screen instead of emailing it. */
+const EMAILJS = {serviceId: "", templateId: "", publicKey: ""};
+const OTP_TTL = 10 * 60 * 1000, OTP_COOLDOWN = 30, OTP_MAX_TRIES = 5;
+let pending = null, cooldownTimer = null;
+
+function showStep(step) {
+  const cred = step === "cred", otp = step === "otp", np = step === "newpass";
+  $("credStep").style.display = cred ? "block" : "none";
+  $("authBtn").style.display = cred ? "block" : "none";
+  $("authSwitch").style.display = cred ? "block" : "none";
+  $("otpStep").style.display = otp ? "block" : "none";
+  $("otpBtn").style.display = otp ? "block" : "none";
+  $("otpLinks").style.display = otp ? "flex" : "none";
+  $("newPassStep").style.display = np ? "block" : "none";
+  $("newPassBtn").style.display = np ? "block" : "none";
+  if (cred) { pending = null; clearInterval(cooldownTimer); $("otpInput").value = ""; $("newPass").value = ""; return; }
+  if (otp) {
+    $("authTitle").textContent = "Verify your email";
+    $("authSub").textContent = "We sent a 6-digit code to " + pending.email + ". It expires in 10 minutes.";
+    $("otpBtn").textContent = pending.purpose === "reset" ? "Verify code" : "Verify and create account";
+    setTimeout(() => $("otpInput").focus(), 50);
+  } else {
+    $("authTitle").textContent = "Set a new password";
+    $("authSub").textContent = "Your email is verified. Choose a new password.";
+    setTimeout(() => $("newPass").focus(), 50);
+  }
+}
+
+async function sendOtpEmail(email, name, code) {
+  const demo = $("otpDemo");
+  if (!EMAILJS.serviceId || !EMAILJS.templateId || !EMAILJS.publicKey) {
+    demo.style.display = "block";
+    demo.textContent = "Demo mode: email sending is not set up yet, so your code is " + code + ".";
+    return true;
+  }
+  demo.style.display = "none";
+  const r = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({service_id: EMAILJS.serviceId, template_id: EMAILJS.templateId, user_id: EMAILJS.publicKey,
+      template_params: {to_email: email, name, otp: code}})
+  });
+  return r.ok;
+}
+
+async function issueOtp() {
+  const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1000000).padStart(6, "0");
+  pending.otpHash = await hashPw(code, "otp" + pending.email);
+  pending.expires = Date.now() + OTP_TTL; pending.tries = 0;
+  const ok = await sendOtpEmail(pending.email, pending.name, code).catch(() => false);
+  if (ok) startCooldown();
+  return ok;
+}
+
+function startCooldown() {
+  let left = OTP_COOLDOWN; const b = $("resendBtn");
+  clearInterval(cooldownTimer); b.disabled = true; b.textContent = "Resend code in " + left + "s";
+  cooldownTimer = setInterval(() => {
+    left--;
+    if (left <= 0) { clearInterval(cooldownTimer); b.disabled = false; b.textContent = "Resend code"; }
+    else b.textContent = "Resend code in " + left + "s";
+  }, 1000);
+}
+
+async function startSignup(email, name, pw) {
+  const btn = $("authBtn"); btn.disabled = true; setErr("");
+  const salt = Math.random().toString(36).slice(2);
+  pending = {email, name, salt, hash: await hashPw(pw, salt)};
+  if (await issueOtp()) showStep("otp");
+  else { pending = null; setErr("Could not send the email. Check the address and try again."); }
+  btn.disabled = false;
+}
+
+async function resendOtp() {
+  if (!pending) return;
+  setErr("");
+  if (await issueOtp()) setErr(""); else setErr("Could not send the email. Try again.");
+}
+
+async function verifyOtp() {
+  if (!pending) return;
+  const code = $("otpInput").value.trim();
+  if (!/^\d{6}$/.test(code)) return setErr("Enter the 6-digit code.");
+  if (Date.now() > pending.expires) return setErr("This code has expired. Tap Resend code.");
+  if (pending.tries >= OTP_MAX_TRIES) return setErr("Too many wrong attempts. Tap Resend code for a new one.");
+  if (await hashPw(code, "otp" + pending.email) !== pending.otpHash) {
+    pending.tries++; return setErr("That code is not correct.");
+  }
+  if (pending.purpose === "reset") { pending.verified = true; setErr(""); showStep("newpass"); return; }
+  const users = getUsers();
+  users[pending.email] = {name: pending.name, salt: pending.salt, hash: pending.hash, verified: true};
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  localStorage.setItem(SESSION_KEY, pending.email);
+  const email = pending.email;
+  toggleAuthMode();           // reset the form back to sign in
+  $("authName").value = ""; $("authEmail").value = "";
+  enterApp(email);
+}
+
+function backToForm() { authMode = authMode === "signup" ? "signin" : "signup"; toggleAuthMode(); }
+
+async function startReset() {
+  const email = $("authEmail").value.trim().toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(email)) return setErr("Enter your email above first, then tap Forgot password.");
+  const u = getUsers()[email];
+  if (!u) return setErr("No account found with this email.");
+  setErr("");
+  pending = {email, name: u.name, purpose: "reset"};
+  if (await issueOtp()) showStep("otp");
+  else { pending = null; setErr("Could not send the email. Try again."); }
+}
+
+async function setNewPassword() {
+  if (!pending || !pending.verified) return;
+  const pw = $("newPass").value;
+  if (pw.length < 6) return setErr("Password must be at least 6 characters.");
+  const users = getUsers(), u = users[pending.email];
+  if (!u) return setErr("Account not found.");
+  u.salt = Math.random().toString(36).slice(2); u.hash = await hashPw(pw, u.salt);
+  users[pending.email] = u;
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  localStorage.setItem(SESSION_KEY, pending.email);
+  const email = pending.email;
+  authMode = "signup"; toggleAuthMode();     // back to the sign-in form
+  $("authEmail").value = ""; $("authPass").value = "";
+  enterApp(email);
+}
+$("newPass").addEventListener("keydown", e => { if (e.key === "Enter") setNewPassword(); });
+$("otpInput").addEventListener("keydown", e => { if (e.key === "Enter") verifyOtp(); });
+
+["authName", "authEmail", "authPass"].forEach(id =>
+  $(id).addEventListener("keydown", e => { if (e.key === "Enter") submitAuth(); }));
+
+/* ---------- Start ---------- */
+const sessionUser = localStorage.getItem(SESSION_KEY);
+if (sessionUser && getUsers()[sessionUser]) enterApp(sessionUser);
+if (KEY) { resetBrowse(); loadTrending(); }
+
+</script>
+</body>
+</html>
